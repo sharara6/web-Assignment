@@ -1,4 +1,5 @@
 const readFile = require('./readfile.js');
+const fs = require('fs/promises');
 
 const deleteFile = async (filePath, bookID) => {
     let buffer = await readFile(filePath);
