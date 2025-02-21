@@ -1,28 +1,70 @@
 const express = require('express');
 const app = express();
+
+const readFile = require('./readfile.js');
+const writeFile = require('./writeFile.js');
+const editFile = require('./editFile.js');
+const deleteFile = require('./deletFile.js');
+
 const port = process.env.PORT || 1245;
 
 app.use(express.json()); // Added middleware for JSON parsing
 
-var books = {"0":"batman","1":"superman","2":"spiderman"};
 
 app.get('/', (req, res) => {
-  res.send(Object.values(books));
-});
+
+    readFile(process.argv[2])
+    .then((response) => {
+      res.write('This is the list of our books\n');
+      res.write(JSON.stringify(response));
+    })
+    .catch((error) => {
+      res.write(error.message);
+    })
+    .finally(() => {
+      res.end();
+    });}
+);
 
 app.post("/add", (req, res) => {
-  books[Object.keys(books).length] = "catwoman";
-  res.send(Object.values(books));
+  writeFile(process.argv[2], "Added").then((response) => {
+    res.write('This is the list of our books after adding\n');
+    res.write(JSON.stringify(response));
+  })
+  .catch((error) => {
+    res.write(error.message);
+  })
+  .finally(() => {
+    res.end();
+  })
 });
 
 app.put("/edit", (req, res) => {
-  books[Object.keys(books).length - 1] = "Edited Book";
-  res.send(Object.values(books));
+
+  editFile(process.argv[2], "Edited", 2).then((response) => {
+    res.write('This is the list of our books after editing\n');
+    res.write(JSON.stringify(response));
+  })
+  .catch((error) => {
+    res.write(error.message);
+  })
+  .finally(() => {
+        res.end();
+    })
 });
 
 app.delete("/delete", (req, res) => {
-  delete books[Object.keys(books).length - 1];
-  res.send(Object.values(books));
+
+    deleteFile(process.argv[2], 0).then((response) => {
+        res.write('This is the list of our books after deleting\n');
+        res.write(JSON.stringify(response));
+    })
+    .catch((error) => {
+        res.write(error.message);
+    })
+    .finally(() => {
+        res.end();
+    })
 });
 
 app.listen(port, () => {
