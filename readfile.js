@@ -16,7 +16,4 @@ const data = buffer
 return data;
 }
 
-
-
-
 module.exports = readFile;

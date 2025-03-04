@@ -1,9 +1,16 @@
 const readFile = require('./readfile.js');
 const fs = require('fs/promises');
 
-const editFile = async (filePath, data, bookID) => {
+const editFile = async (filePath, data, bookID, isBorrowed) => {
     let buffer = await readFile(filePath);
-    buffer[bookID] = (buffer.length + ", " + data);
+    var borrowed = "";
+    if (isBorrowed == 1){
+        borrowed = "borrowed";
+    }
+    else{
+        borrowed = "not borrowed";
+    }
+    buffer[bookID] = (buffer.length + ", " + data + ", Scott Snyder" + ", " + borrowed);
     try {
         await fs.writeFile(filePath, buffer.join('\n'));
     } catch (error) {

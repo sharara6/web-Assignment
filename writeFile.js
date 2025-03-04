@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 
 const writeFile = async (filePath, data) => {
     let buffer = await readFile(filePath);
-    buffer.push(buffer.length + ", " + data);
+    buffer.push(buffer.length + ", " + data + ", Scott Snyder" + ", " + 0);
 
     try {
         await fs.writeFile(filePath, buffer.join('\n'));

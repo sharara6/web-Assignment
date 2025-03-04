@@ -1,71 +1,32 @@
 const express = require('express');
 const app = express();
 
-const readFile = require('./readfile.js');
-const writeFile = require('./writeFile.js');
-const editFile = require('./editFile.js');
-const deleteFile = require('./deletFile.js');
-
 const port = process.env.PORT || 1245;
 
-app.use(express.json()); // Added middleware for JSON parsing
+app.use(express.json());
 
+const userRoutes = require("./routers/get.js");
+const AddBook = require("./routers/add.js");
+const editBook = require("./routers/edit.js");
+const deleteBook = require("./routers/delete.js");
 
-app.get('/', (req, res) => {
+const authentacetor = (req, res, next) => {
+  const authHeadr = req.headers.authorization;
+  if (authHeadr != "Bearer Zewail") {
+    return res.status(401).send("You are not authorized");
+  }
+  next();
+}
 
-    readFile(process.argv[2])
-    .then((response) => {
-      res.write('This is the list of our books\n');
-      res.write(JSON.stringify(response));
-    })
-    .catch((error) => {
-      res.write(error.message);
-    })
-    .finally(() => {
-      res.end();
-    });}
-);
+app.use(authentacetor);
 
-app.post("/add", (req, res) => {
-  writeFile(process.argv[2], "Added").then((response) => {
-    res.write('This is the list of our books after adding\n');
-    res.write(JSON.stringify(response));
-  })
-  .catch((error) => {
-    res.write(error.message);
-  })
-  .finally(() => {
-    res.end();
-  })
-});
+app.get('/', userRoutes);
 
-app.put("/edit", (req, res) => {
+app.post("/add",AddBook);
 
-  editFile(process.argv[2], "Edited", 2).then((response) => {
-    res.write('This is the list of our books after editing\n');
-    res.write(JSON.stringify(response));
-  })
-  .catch((error) => {
-    res.write(error.message);
-  })
-  .finally(() => {
-        res.end();
-    })
-});
+app.put("/edit", editBook);
 
-app.delete("/delete", (req, res) => {
-
-    deleteFile(process.argv[2], 0).then((response) => {
-        res.write('This is the list of our books after deleting\n');
-        res.write(JSON.stringify(response));
-    })
-    .catch((error) => {
-        res.write(error.message);
-    })
-    .finally(() => {
-        res.end();
-    })
-});
+app.delete("/delete", deleteBook);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
