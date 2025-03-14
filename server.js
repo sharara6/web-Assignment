@@ -1,30 +1,57 @@
 const express = require('express');
+const cors = require('cors');
+const { sequelize, connectMongoDB } = require('./config/database');
+const authorRoutes = require('./routes/authorRoutes');
+const postRoutes = require('./routes/postRoutes');
+require('dotenv').config();
+
 const app = express();
-const port = process.env.PORT || 1245;
 
-app.use(express.json()); // Added middleware for JSON parsing
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-var books = {"0":"batman","1":"superman","2":"spiderman"};
+// Routes
+app.use('/api/authors', authorRoutes);
+app.use('/api/posts', postRoutes);
 
-app.get('/', (req, res) => {
-  res.send(Object.values(books));
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error details:', err);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
-app.post("/add", (req, res) => {
-  books[Object.keys(books).length] = "catwoman";
-  res.send(Object.values(books));
-});
+// Database connections and server start
+const PORT = process.env.PORT || 3000;
 
-app.put("/edit", (req, res) => {
-  books[Object.keys(books).length - 1] = "Edited Book";
-  res.send(Object.values(books));
-});
+const startServer = async () => {
+  try {
+    console.log('Starting server...');
+    console.log('Attempting to connect to PostgreSQL...');
+    
+    // Connect to PostgreSQL
+    await sequelize.authenticate();
+    console.log('PostgreSQL connected successfully');
+    
+    // Sync PostgreSQL models
+    console.log('Syncing PostgreSQL models...');
+    await sequelize.sync();
+    console.log('PostgreSQL models synchronized');
 
-app.delete("/delete", (req, res) => {
-  delete books[Object.keys(books).length - 1];
-  res.send(Object.values(books));
-});
+    // Connect to MongoDB
+    console.log('Attempting to connect to MongoDB...');
+    await connectMongoDB();
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`Try accessing: http://localhost:${PORT}/api/authors`);
+    });
+  } catch (error) {
+    console.error('Server startup error:', error);
+    console.error('Error details:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
