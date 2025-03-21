@@ -1,0 +1,21 @@
+task-management-api
+├── src
+│   ├── config
+│   │   └── database.js
+│   ├── models
+│   │   ├── index.js
+│   │   ├── User.js
+│   │   └── Task.js
+│   ├── controllers
+│   │   ├── userController.js
+│   │   └── taskController.js
+│   ├── routes
+│   │   ├── userRoutes.js
+│   │   └── taskRoutes.js
+│   ├── middleware
+│   │   └── auth.js
+│   └── app.js
+├── .env
+├── .sequelizerc
+├── package.json
+└── README.md
